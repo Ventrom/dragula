@@ -402,8 +402,9 @@ function dragula (initialContainers, options) {
 
     var clientX = getCoord('clientX', e) || 0;
     var clientY = getCoord('clientY', e) || 0;
-    var x = clientX - _offsetX;
-    var y = clientY - _offsetY;
+    var scaling = getElementScaling(o.mirrorContainer);
+    var x = (clientX - _offsetX) / scaling.scaleX;
+    var y = (clientY - _offsetY) / scaling.scaleY;
 
     _mirror.style.left = x + 'px';
     _mirror.style.top = y + 'px';
@@ -464,9 +465,10 @@ function dragula (initialContainers, options) {
       return;
     }
     var rect = _item.getBoundingClientRect();
+    var scaling = getElementScaling(o.mirrorContainer);
     _mirror = _item.cloneNode(true);
-    _mirror.style.width = getRectWidth(rect) + 'px';
-    _mirror.style.height = getRectHeight(rect) + 'px';
+    _mirror.style.width = (getRectWidth(rect) / scaling.scaleX) + 'px';
+    _mirror.style.height = (getRectHeight(rect) / scaling.scaleY) + 'px';
     classes.rm(_mirror, 'gu-transit');
     classes.add(_mirror, 'gu-mirror');
     o.mirrorContainer.appendChild(_mirror);
@@ -530,6 +532,11 @@ function dragula (initialContainers, options) {
   function isCopy (item, container) {
     return typeof o.copy === 'boolean' ? o.copy : o.copy(item, container);
   }
+}
+
+function getElementScaling(el) {
+  var rect = el.getBoundingClientRect();
+  return { scaleX: rect.width / el.clientWidth, scaleY: rect.height / el.clientHeight };
 }
 
 function touchy (el, op, type, fn) {
